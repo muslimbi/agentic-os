@@ -19,3 +19,7 @@ def main() -> int:
         )
     uvicorn.run("agentic_os.api:app", host=args.host, port=args.port)
     return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

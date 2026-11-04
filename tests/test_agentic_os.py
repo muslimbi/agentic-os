@@ -1,5 +1,6 @@
 import io
 import json
+import subprocess
 import sys
 import threading
 import unittest
@@ -243,6 +244,17 @@ class AgenticOsTests(unittest.TestCase):
             server.shutdown()
             server.server_close()
             thread.join()
+
+    def test_server_module_runs_with_python_m(self):
+        result = subprocess.run(
+            [sys.executable, "-m", "agentic_os.server", "--help"],
+            cwd=str(ROOT),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0)
+        self.assertIn("Run the local GOD AI OS dashboard.", result.stdout)
 
 
 if __name__ == "__main__":
