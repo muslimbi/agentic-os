@@ -1,79 +1,172 @@
 # Agentic OS
 
-> The operating system built for AI agents.
+> **Open-source, self-hosted AI agent platform for your company's AI teammates.**
+> Build, run, and govern agents on your own servers and models.
 
-**Agentic OS** is a purpose-built, open-source operating system engineered from the kernel up to run AI agents at hardware speed. No legacy bloat. No virtualization overhead. Just a clean, deterministic runtime where agents talk directly to metal.
+Agentic OS is an early prototype toward a self-hosted platform for company AI
+teammates. The product vision includes shared chat, retrieval-augmented
+generation (RAG), skills, a real browser, broad MCP server integrations,
+budgets, human approvals, and an audit trail. The current implementation is an
+in-memory hierarchical orchestration prototype; these platform capabilities
+are roadmap goals, not features available today.
 
----
+The intended governance model is the human-led GOD AI OS hierarchy: Root User
+→ Father → Mother → Children → Sub-Children → Specialized Workers. See the
+[GOD AI OS foundational design](docs/GOD_AI_OS_DESIGN.md) for its principles,
+subsystems, design review, and phased implementation sequence.
 
-## Why Agentic OS?
+The proposed direction is to build on Pydantic AI and use an Apache-2.0
+license. **The current repository is GPL-3.0-or-later and does not yet depend on
+Pydantic AI.** The license and framework have not been changed.
 
-Every AI agent today runs inside a general-purpose OS designed for human workflows — Linux distributions, container runtimes, and cloud VMs built around assumptions that pre-date LLMs by decades. The result: latency, overhead, and complexity that has nothing to do with inference.
+The canonical design makes Father Root's only direct AI interface, with work
+delegated down the hierarchy and reports returned through direct parents. The
+current prototype uses a company-oriented variant: Father has a Mother CEO and
+Child General Manager for each company, and the General Manager creates
+Sub-child task managers for individual tasks. This is an implementation detail
+that still needs reconciliation with the canonical hierarchy; it does not
+change the intended Root authority or reporting rules.
 
-Agentic OS eliminates that abstraction gap.
-
-- **Direct GPU scheduling** — agent executor pipelines connect straight to hardware accelerators without fighting the kernel's generic scheduler
-- **Localized LLM services** — run models fully offline, inside isolated sandboxes, with zero cloud dependency
-- **Vector-native memory** — vector databases are first-class citizens at the OS level, not afterthoughts bolted on top
-- **gVisor-style container boundaries** — strong process isolation between agents without the overhead of full VMs
-- **Single bootable image** — the entire runtime ships as one image: deterministic, reproducible, and version-pinned
-
----
-
-## Architecture (Concept)
-
+```text
+                         Father (Group of Companies)
+                          /                  \
+             Mother (CEO, Company A)   Mother (CEO, Company B)
+                    |                         |
+          Child (General Manager)    Child (General Manager)
+                    |                         |
+             Sub-child managers        Sub-child managers
 ```
-+----------------------------------------+
-|        AI Agent Application Layer      |
-+----------------------------------------+
-|   Agentic OS - Kernel & Memory Pools   |
-+----------------------------------------+
-|      Bare-Metal Hardware / GPU         |
-+----------------------------------------+
+
+## Product direction
+
+The goal is to let teams build, run, and govern AI teammates using infrastructure
+and models they control. Planned capabilities include:
+
+- Shared team chat and RAG over company knowledge.
+- A reusable skills hub and integrations with agent CLIs such as OpenCode,
+  Hermes, and Antigravity.
+- Browser and computer control, including vision-driven operation.
+- MCP server discovery and integrations, targeting a catalog of 4,700+ servers.
+- Budgets, cost analytics, human-in-the-loop approvals, and an audit trail.
+- Multi-user RBAC, visual workflows, voice, knowledge-graph memory, scheduling,
+  and backup.
+
+Agent governance, data ownership, and self-hosting are product goals; the
+prototype currently has no authentication, persistence, audit system, RAG, MCP
+integration, or team chat. Agentic OS is intended as an open-source alternative
+to hosted enterprise agent products such as ChatGPT Enterprise and Grok Bot;
+this is a product-positioning statement, not a feature comparison.
+
+## Platform architecture
+
+The platform is organized into eight cooperating layers:
+
+1. **Model layer** — AI models that reason and generate responses. Model
+   provider integration is planned; no model is connected in this prototype.
+2. **Memory layer** — Context, conversation history, and organizational
+   knowledge. Long-term storage, RAG, and knowledge graphs are planned; current
+   runtime state is in memory only.
+3. **Tool/integration layer** — Agent capabilities such as skills, browser
+   control, and MCP/CLI integrations. These integrations are planned, not
+   connected today.
+4. **Orchestration layer** — The hierarchical group/company agents, delegation
+   policy, and report flow. A basic in-process version is implemented.
+5. **Workflow layer** — Processes that chain tasks and approvals. The prototype
+   accepts a supplied list of tasks; visual workflows and approval gates are
+   planned.
+6. **Interface layer** — Human-facing chat, controls, and monitoring. A basic
+   browser dashboard for companies, goals, and agent reports is implemented;
+   shared chat and multi-user access are planned.
+7. **Governance, guardrails, and audit** — Policies, permission boundaries,
+   approval gates, and traceable records that keep agent actions accountable.
+   Basic delegation-policy checks and in-memory reports exist; approvals,
+   identity/RBAC, and a durable, tamper-resistant audit trail are planned.
+8. **Observability and continuous improvement** — Metrics, traces, evaluations,
+   and feedback loops used to monitor agent quality and improve performance.
+   Basic in-memory reports are available; metrics, tracing, evaluation, and
+   automated improvement loops are planned.
+
+## What this prototype does today
+
+- Enforces father-only user goal intake and the group-to-CEO-to-General
+  Manager-to-task-manager delegation policy.
+- Gives each company its own CEO and General Manager branch. The browser
+  dashboard can add companies and route goals to a selected company.
+- Splits work into the tasks supplied with a goal. If no tasks are supplied,
+  the goal is passed through as one task; no language model currently decomposes
+  it.
+- Creates one sub-child worker per task and records handoffs, reports, and
+  per-agent dashboards in memory.
+- Supports an optional Python task executor through the `HierarchicalAgentOS`
+  API.
+
+Without a configured executor, tasks are reported as `awaiting_executor`. The
+CLI does not run arbitrary task descriptions or connect to language models,
+hardware schedulers, persistent memory, or a bootable operating-system kernel.
+This project is an orchestration foundation, not an AGI/ASI system.
+Improving sub-agent capabilities is a long-term direction; evaluation,
+learning, and autonomous improvement loops are not implemented yet.
+
+## Usage
+
+Install the package in editable mode:
+
+```bash
+python -m pip install -e .
 ```
 
-By bypassing virtualization layers, Agentic OS enables direct scheduler hooks — models operate at hardware speed limits, not software-imposed ceilings.
+Then submit a goal:
 
----
+```bash
+agentic-os --goal "Prepare a project proposal" \
+  --task "Collect requirements" \
+  --task "Draft the proposal" \
+  --json
+```
 
-## Timeline
+The browser dashboard starts with a default company. Use its **Add a company**
+form to create more company branches, then select the target company when
+submitting a goal.
 
-| Milestone | Target |
-|-----------|--------|
-| Private Alpha — waitlist registrants | Q3 2026 |
-| Public Beta | Q4 2026 |
-| 1.0 General Release | Q1 2027 |
+Show all agent dashboards or an individual role dashboard:
 
----
+```bash
+agentic-os --goal "Prepare a project proposal" --dashboard
+agentic-os --goal "Prepare a project proposal" --dashboard mother --json
+```
 
-## Get Early Access
+Launch the visual browser dashboards for Father, Mother, and Child:
 
-We're building this in the open. Join the waitlist to be invited to private alpha builds, shape the roadmap, and get early access to the GitHub repository when it opens.
+```bash
+agentic-os-web
+```
 
-**[agentiqueos.com](https://agentiqueos.com)**
+Open [http://127.0.0.1:8765](http://127.0.0.1:8765). The local dashboard lets
+you inspect each agent's role, policy, reports, and assigned goals, and submit
+goals through the hierarchy. State is in memory and resets when the server
+stops. Tasks remain `awaiting_executor` unless an executor is configured in
+code.
 
----
+Use the API to provide an executor:
 
-## What's Coming in the Repo
+```python
+from agentic_os import HierarchicalAgentOS
 
-Once the alpha registry opens (Q3 2026), this repository will accept contributions for:
+system = HierarchicalAgentOS(executor=lambda task: f"Completed: {task}")
+run = system.submit_goal("Prepare a proposal", ["Collect requirements", "Draft it"])
+print(run.summarize())
+print(system.dashboard("child"))
+```
 
-- Kernel driver patches and device scheduling matrices
-- Agent workspace templates
-- Offline LLM service configurations
-- System extension scripts and sandboxing profiles
+The executor is application-supplied; this prototype does not implement an
+LLM-powered executor or automatic agent self-improvement.
 
----
+## Development
+
+```bash
+python -m unittest discover -s tests
+```
 
 ## License
 
-Agentic OS will be released under the **GPLv3 license** — free to inspect, modify, and self-host. No licensing costs, no vendor lock-in.
-
----
-
-## Stay Updated
-
-- **Website:** [agentiqueos.com](https://agentiqueos.com)
-- **Star this repo** to follow progress
-
-> Built for developers who believe AI infrastructure should be open, fast, and owned by no one.
+GPL-3.0-or-later. See [LICENSE](./LICENSE).

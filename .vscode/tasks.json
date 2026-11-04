@@ -1,0 +1,12 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Agentic OS Dashboard",
+			"type": "shell",
+			"command": "PYTHONPATH=src python -m agentic_os.web --port 8765",
+			"isBackground": true,
+			"problemMatcher": []
+		}
+	]
+}

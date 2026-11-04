@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#11131a">
+    <title>Agentic OS — Agent dashboards</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #11131a;
+        color: #eceef5;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        --muted: #9298a9;
+        --panel: #191c26;
+        --border: #2a2e3b;
+        --accent: #a78bfa;
+        --green: #63d6a5;
+      }
+
+      * { box-sizing: border-box; }
+      body { margin: 0; min-height: 100vh; }
+      button, input, textarea { font: inherit; }
+      .shell { max-width: 1180px; margin: auto; padding: 40px 24px 64px; }
+      header { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 36px; }
+      .brand { display: flex; align-items: center; gap: 12px; }
+      .brand-mark { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid #5b4b8c; border-radius: 13px; color: var(--accent); font-weight: 800; }
+      h1, h2, h3, p { margin-top: 0; }
+      h1 { margin-bottom: 4px; font-size: 19px; letter-spacing: -.03em; }
+      .subtitle, .muted { color: var(--muted); }
+      .subtitle { margin: 0; font-size: 13px; }
+      .live { display: flex; align-items: center; gap: 8px; color: var(--green); font-size: 12px; }
+      .live::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 12px currentColor; }
+      .intro { margin-bottom: 22px; }
+      .intro h2 { margin-bottom: 7px; font-size: clamp(24px, 4vw, 32px); letter-spacing: -.04em; }
+      .intro p { margin-bottom: 0; color: var(--muted); font-size: 14px; }
+      .architecture { margin: 20px 0; }
+      .architecture-heading { margin: 0 0 12px; font-size: 14px; }
+      .layer-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+      .layer-card { padding: 15px; border: 1px solid var(--border); border-radius: 12px; background: var(--panel); }
+      .layer-card h3 { margin: 0 0 6px; font-size: 13px; }
+      .layer-card p { margin: 0 0 10px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+      .layer-status { color: #edc975; font-size: 10px; }
+      .layer-status.available { color: var(--green); }
+      .hierarchy { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+      .agent-card, .panel { border: 1px solid var(--border); border-radius: 16px; background: var(--panel); }
+      .agent-card { min-height: 208px; padding: 20px; color: inherit; text-align: left; transition: border-color .15s, transform .15s; }
+      .agent-card:hover, .agent-card.selected { border-color: #7862b8; transform: translateY(-2px); }
+      .card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+      .role-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: #282337; color: var(--accent); font-size: 15px; font-weight: 750; }
+      .status { padding: 5px 9px; border: 1px solid #365848; border-radius: 99px; color: var(--green); font-size: 11px; }
+      .status.waiting { border-color: #665735; color: #edc975; }
+      .status.idle { border-color: var(--border); color: var(--muted); }
+      .agent-card h3 { margin-bottom: 5px; font-size: 17px; }
+      .agent-card .muted { margin-bottom: 16px; font-size: 12px; }
+      .card-meta { display: flex; gap: 18px; color: var(--muted); font-size: 12px; }
+      .card-meta strong { color: #e6e8f0; font-weight: 600; }
+      .workspace { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr); gap: 16px; margin-top: 18px; }
+      .panel { padding: 22px; }
+      .panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+      .panel-heading h2 { margin: 0; font-size: 15px; }
+      .panel-heading span { color: var(--muted); font-size: 11px; }
+      .detail-role { margin: 0 0 4px; color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+      .detail-name { margin-bottom: 18px; font-size: 22px; letter-spacing: -.03em; }
+      .section-label { margin: 20px 0 9px; color: var(--muted); font-size: 11px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase; }
+      .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+      .chip { padding: 6px 9px; border: 1px solid var(--border); border-radius: 8px; color: #c8cbd7; font-size: 11px; }
+      .policy-list { display: grid; gap: 9px; }
+      .policy-row { display: flex; justify-content: space-between; gap: 16px; font-size: 12px; }
+      .policy-row span:first-child { color: var(--muted); }
+      .policy-row span:last-child { text-align: right; }
+      .activity { display: grid; gap: 0; max-height: 320px; overflow: auto; }
+      .activity-item { display: grid; grid-template-columns: 9px minmax(0, 1fr); gap: 11px; padding: 12px 0; border-top: 1px solid var(--border); }
+      .activity-dot { width: 7px; height: 7px; margin-top: 5px; border-radius: 50%; background: var(--accent); }
+      .activity-item p { margin: 0 0 4px; color: #d9dbe5; font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+      .activity-item small { color: var(--muted); font-size: 10px; }
+      .empty { padding: 18px 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+      .goal-panel { margin-top: 16px; }
+      .goal-form { display: grid; grid-template-columns: minmax(140px, .7fr) 1fr 1fr auto; gap: 10px; }
+      .company-form { display: flex; gap: 10px; max-width: 470px; margin-top: 20px; }
+      .company-form input { flex: 1; }
+      input, textarea, select { width: 100%; padding: 11px 12px; border: 1px solid var(--border); border-radius: 9px; outline: none; background: #12141b; color: #eceef5; font-size: 12px; }
+      input:focus, textarea:focus, select:focus { border-color: #7862b8; }
+      textarea { min-height: 42px; resize: vertical; }
+      button { align-self: start; padding: 11px 15px; border: 0; border-radius: 9px; background: var(--accent); color: #171322; font-size: 12px; font-weight: 700; cursor: pointer; }
+      button:disabled { opacity: .55; cursor: wait; }
+      #form-message { min-height: 18px; margin: 10px 0 0; color: var(--muted); font-size: 11px; }
+      #form-message.error { color: #ff9292; }
+      @media (max-width: 760px) {
+        .shell { padding: 26px 16px 40px; }
+        .hierarchy { grid-template-columns: 1fr; gap: 10px; }
+        .layer-grid { grid-template-columns: 1fr; }
+        .agent-card { min-height: 0; }
+        .workspace { grid-template-columns: 1fr; }
+        .goal-form { grid-template-columns: 1fr; }
+        .company-form { max-width: none; }
+        header { margin-bottom: 28px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <header>
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">A</div>
+          <div>
+            <h1>Agentic OS</h1>
+            <p class="subtitle">Self-hosted AI teammates for your company</p>
+          </div>
+        </div>
+        <div class="live">Local runtime</div>
+      </header>
+
+      <section class="intro">
+        <h2>Build, run, and govern agents on your own infrastructure</h2>
+        <p>Shared chat, RAG, skills, browser and MCP integrations, budgets, approvals, and audit trails are part of the vision. This prototype currently demonstrates an in-memory company agent hierarchy.</p>
+      </section>
+
+      <section class="architecture" aria-labelledby="architecture-heading">
+        <h2 id="architecture-heading" class="architecture-heading">Eight-layer platform architecture</h2>
+        <div class="layer-grid">
+          <article class="layer-card">
+            <h3>1. Model layer</h3>
+            <p>AI models that power reasoning. Provider connections are planned.</p>
+            <span class="layer-status">Planned</span>
+          </article>
+          <article class="layer-card">
+            <h3>2. Memory layer</h3>
+            <p>Context and history. Current runtime state is in memory only.</p>
+            <span class="layer-status">Persistent memory planned</span>
+          </article>
+          <article class="layer-card">
+            <h3>3. Tool/integration layer</h3>
+            <p>Skills, browser control, MCP servers, and agent CLI integrations.</p>
+            <span class="layer-status">Planned</span>
+          </article>
+          <article class="layer-card">
+            <h3>4. Orchestration layer</h3>
+            <p>Company hierarchy, goal delegation, policies, and agent reports.</p>
+            <span class="layer-status available">Basic prototype available</span>
+          </article>
+          <article class="layer-card">
+            <h3>5. Workflow layer</h3>
+            <p>Task chains and approvals. Supplied task lists work; visual workflows are planned.</p>
+            <span class="layer-status">Basic task routing only</span>
+          </article>
+          <article class="layer-card">
+            <h3>6. Interface layer</h3>
+            <p>Browser dashboards for company agents, goals, and reports.</p>
+            <span class="layer-status available">Basic dashboard available</span>
+          </article>
+          <article class="layer-card">
+            <h3>7. Governance, guardrails, and audit</h3>
+            <p>Delegation policies, action boundaries, human approvals, and traceable records.</p>
+            <span class="layer-status">Basic policy checks; approvals and durable audit planned</span>
+          </article>
+          <article class="layer-card">
+            <h3>8. Observability and continuous improvement</h3>
+            <p>Metrics, traces, evaluations, and feedback loops to monitor and improve agent quality.</p>
+            <span class="layer-status">Basic in-memory reports; metrics, evaluation, and improvement planned</span>
+          </article>
+        </div>
+      </section>
+
+      <section id="hierarchy" class="hierarchy" aria-label="Agent hierarchy"></section>
+
+      <section class="workspace">
+        <article class="panel" id="agent-detail" aria-live="polite"></article>
+        <article class="panel">
+          <div class="panel-heading">
+            <h2>Recent activity</h2>
+            <span id="activity-count">0 reports</span>
+          </div>
+          <div id="activity" class="activity"></div>
+        </article>
+      </section>
+
+      <section class="panel goal-panel">
+        <div class="panel-heading">
+          <h2>Send a goal to the group</h2>
+          <span>Choose a company; managers are created for each task</span>
+        </div>
+        <form id="goal-form" class="goal-form">
+          <select id="company-input" name="company" required aria-label="Company"></select>
+          <input id="goal-input" name="goal" placeholder="Describe the goal…" required>
+          <textarea id="tasks-input" name="tasks" placeholder="Optional tasks, one per line"></textarea>
+          <button id="submit-button" type="submit">Submit goal</button>
+        </form>
+        <p id="form-message" role="status"></p>
+        <p class="section-label">Add a company</p>
+        <form id="company-form" class="company-form">
+          <input id="company-name" name="company" placeholder="Company name" required>
+          <button id="company-button" type="submit">Add company</button>
+        </form>
+        <p id="company-message" role="status"></p>
+      </section>
+    </main>
+    <script>
+      const hierarchy = document.querySelector("#hierarchy");
+      const detail = document.querySelector("#agent-detail");
+      const activity = document.querySelector("#activity");
+      const activityCount = document.querySelector("#activity-count");
+      const form = document.querySelector("#goal-form");
+      const companyForm = document.querySelector("#company-form");
+      const formMessage = document.querySelector("#form-message");
+      const companyMessage = document.querySelector("#company-message");
+      const submitButton = document.querySelector("#submit-button");
+      const companyButton = document.querySelector("#company-button");
+      const companySelect = document.querySelector("#company-input");
+      let dashboard = null;
+      let selectedAgent = "father";
+
+      function element(tag, className, text) {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text !== undefined) node.textContent = text;
+        return node;
+      }
+
+      function agentStatus(agent) {
+        if (!agent.goals.length) return ["Idle", "idle"];
+        const reports = agent.reports;
+        const latest = reports[reports.length - 1];
+        const status = latest && (latest.status || latest.message);
+        if (status && status.includes("completed")) return ["Completed", ""];
+        if (status && status.includes("awaiting_executor")) return ["Awaiting executor", "waiting"];
+        return ["Active", ""];
+      }
+
+      function renderCompanies() {
+        const selected = companySelect.value;
+        companySelect.replaceChildren();
+        for (const company of dashboard.companies) {
+          const option = element("option", "", company.name);
+          option.value = company.company_id;
+          companySelect.append(option);
+        }
+        if (dashboard.companies.some((company) => company.company_id === selected)) {
+          companySelect.value = selected;
+        }
+        companySelect.disabled = dashboard.companies.length === 0;
+        submitButton.disabled = dashboard.companies.length === 0;
+        if (!dashboard.companies.length) {
+          companyMessage.textContent = "Add a company before submitting a goal.";
+        }
+      }
+
+      function renderCards() {
+        hierarchy.replaceChildren();
+        const descriptions = {
+          father: "Group-level goal intake and oversight",
+          mother: "Company executive · planning and coordination",
+          child: "Company operations · task delegation",
+          subchild: "Task manager · individual work assignment",
+        };
+        for (const agent of dashboard.agents) {
+          const [status, statusClass] = agentStatus(agent);
+          const card = element("button", `agent-card${selectedAgent === agent.agent_id ? " selected" : ""}`);
+          card.type = "button";
+          card.setAttribute("aria-label", `${agent.title} dashboard${agent.company_name ? ` for ${agent.company_name}` : ""}`);
+          const top = element("div", "card-top");
+          top.append(element("span", "role-icon", agent.title.slice(0, 1).toUpperCase()));
+          top.append(element("span", `status ${statusClass}`.trim(), status));
+          card.append(top);
+          card.append(element("h3", "", agent.title));
+          card.append(element("p", "muted", agent.company_name || descriptions[agent.role]));
+          if (agent.company_name && agent.role !== "father") {
+            card.append(element("p", "muted", descriptions[agent.role]));
+          }
+          const meta = element("div", "card-meta");
+          const goals = element("span");
+          goals.append(element("strong", "", String(agent.goals.length)), document.createTextNode(" goals"));
+          const children = element("span");
+          children.append(element("strong", "", String(agent.children.length)), document.createTextNode(" direct reports"));
+          meta.append(goals, children);
+          card.append(meta);
+          card.addEventListener("click", () => {
+            selectedAgent = agent.agent_id;
+            render();
+          });
+          hierarchy.append(card);
+        }
+      }
+
+      function renderDetail() {
+        const agent = dashboard.agents.find((item) => item.agent_id === selectedAgent);
+        if (!agent) return;
+        detail.replaceChildren();
+        detail.append(element("p", "detail-role", agent.title));
+        detail.append(element("h2", "detail-name", agent.company_name || "Group of Companies"));
+        if (agent.company_name) {
+          detail.append(element("p", "muted", `Company ID: ${agent.company_id}`));
+        }
+
+        const policyHeading = element("p", "section-label", "Policy & reporting");
+        detail.append(policyHeading);
+        const policy = element("div", "policy-list");
+        const policyRows = [
+          ["Receives user goals", agent.policy.can_receive_user_goals ? "Yes" : "No"],
+          ["May delegate to", agent.policy.can_delegate_to.join(", ") || "No child agents"],
+          ["Reports to", agent.policy.reports_to || "User / root"],
+          ["Direct reports", agent.children.join(", ") || "None"],
+        ];
+        for (const [label, value] of policyRows) {
+          const row = element("div", "policy-row");
+          row.append(element("span", "", label), element("span", "", value));
+          policy.append(row);
+        }
+        detail.append(policy);
+
+        detail.append(element("p", "section-label", "Capabilities"));
+        const chips = element("div", "chips");
+        for (const capability of agent.capabilities) chips.append(element("span", "chip", capability));
+        detail.append(chips);
+
+        detail.append(element("p", "section-label", "Assigned goals"));
+        if (agent.goals.length) {
+          const chips = element("div", "chips");
+          for (const goalId of agent.goals) chips.append(element("span", "chip", goalId));
+          detail.append(chips);
+        } else {
+          detail.append(element("p", "empty", "No goals have been assigned yet."));
+        }
+      }
+
+      function renderActivity() {
+        activity.replaceChildren();
+        const reports = dashboard.agents
+          .flatMap((agent) => agent.reports.map((report) => ({...report, agent_id: agent.agent_id})))
+          .reverse();
+        activityCount.textContent = `${reports.length} ${reports.length === 1 ? "report" : "reports"}`;
+        if (!reports.length) {
+          activity.append(element("p", "empty", "Agent handoffs and reports will appear here after you submit a goal."));
+          return;
+        }
+        for (const report of reports.slice(0, 30)) {
+          const item = element("div", "activity-item");
+          item.append(element("span", "activity-dot"));
+          const body = element("div");
+          body.append(element("p", "", report.message || report.task || "Agent update"));
+          body.append(element("small", "", `${report.agent_id} · ${report.goal_id}`));
+          item.append(body);
+          activity.append(item);
+        }
+      }
+
+      function render() {
+        renderCompanies();
+        renderCards();
+        renderDetail();
+        renderActivity();
+      }
+
+      async function refresh() {
+        const response = await fetch("/api/dashboard");
+        if (!response.ok) throw new Error("Could not load agent dashboards.");
+        dashboard = await response.json();
+        render();
+      }
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        submitButton.disabled = true;
+        formMessage.className = "";
+        formMessage.textContent = "Routing goal through the company hierarchy…";
+        const goal = document.querySelector("#goal-input").value;
+        const company = companySelect.value;
+        const tasks = document.querySelector("#tasks-input").value
+          .split("\n").map((task) => task.trim()).filter(Boolean);
+        try {
+          const response = await fetch("/api/goals", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({goal, tasks, company}),
+          });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.error || "Goal submission failed.");
+          await refresh();
+          selectedAgent = "father";
+          render();
+          form.reset();
+          formMessage.textContent = `${result.goal_id} routed to ${result.company_name} · ${result.status.replaceAll("_", " ")}.`;
+        } catch (error) {
+          formMessage.className = "error";
+          formMessage.textContent = error.message;
+        } finally {
+          submitButton.disabled = false;
+        }
+      });
+
+      companyForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        companyButton.disabled = true;
+        companyMessage.className = "";
+        companyMessage.textContent = "Adding company agents…";
+        try {
+          const response = await fetch("/api/companies", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({name: document.querySelector("#company-name").value}),
+          });
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.error || "Could not add company.");
+          await refresh();
+          companySelect.value = result.company_id;
+          companyForm.reset();
+          companyMessage.textContent = `${result.name} added with a CEO and General Manager.`;
+        } catch (error) {
+          companyMessage.className = "error";
+          companyMessage.textContent = error.message;
+        } finally {
+          companyButton.disabled = false;
+        }
+      });
+
+      refresh().catch((error) => {
+        formMessage.className = "error";
+        formMessage.textContent = error.message;
+      });
+    </script>
+  </body>
+</html>
