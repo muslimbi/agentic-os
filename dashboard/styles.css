@@ -1,0 +1,98 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --bg: #11131a;
+  --panel: #191c26;
+  --panel-soft: #1e2230;
+  --border: #2a2e3b;
+  --text: #eceef5;
+  --muted: #9298a9;
+  --accent: #a78bfa;
+  --green: #63d6a5;
+  --yellow: #edc975;
+  background: var(--bg);
+  color: var(--text);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f4f5f8;
+  --panel: #fff;
+  --panel-soft: #f0eef9;
+  --border: #dfe1e8;
+  --text: #202231;
+  --muted: #656b7b;
+  --accent: #6848c6;
+  --green: #16875b;
+  --yellow: #946200;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; min-height: 100vh; background: var(--bg); color: var(--text); }
+button, a { font: inherit; }
+a { color: inherit; text-decoration: none; }
+.app-shell { min-height: 100vh; }
+.sidebar { position: fixed; inset: 0 auto 0 0; z-index: 5; display: flex; width: 246px; flex-direction: column; border-right: 1px solid var(--border); background: var(--panel); padding: 22px 14px 14px; }
+.brand { display: flex; align-items: center; gap: 12px; padding: 0 8px 26px; }
+.brand-mark { display: grid; width: 38px; height: 38px; place-items: center; border: 1px solid #5b4b8c; border-radius: 12px; color: var(--accent); font-weight: 800; }
+.brand strong, .brand small { display: block; }
+.brand strong { font-size: 13px; letter-spacing: .04em; }
+.brand small { margin-top: 4px; color: var(--muted); font-size: 11px; }
+.nav-label { padding: 0 10px 9px; color: var(--muted); font-size: 9px; font-weight: 750; letter-spacing: .15em; }
+#navigation { display: grid; gap: 3px; overflow: auto; }
+.nav-link { display: flex; min-height: 36px; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 8px; color: var(--muted); font-size: 12px; }
+.nav-link:hover, .nav-link.active { background: var(--panel-soft); color: var(--text); }
+.nav-link.active { box-shadow: inset 2px 0 var(--accent); }
+.nav-icon { display: inline-grid; width: 19px; height: 19px; place-items: center; border: 1px solid var(--border); border-radius: 6px; color: var(--accent); font-size: 10px; font-weight: 700; }
+.sidebar-footer { display: flex; align-items: center; gap: 8px; margin-top: auto; padding: 14px 9px 4px; color: var(--muted); font-size: 11px; }
+.status-dot, .api-status i { width: 7px; height: 7px; border-radius: 50%; background: var(--yellow); }
+.version { margin-left: auto; }
+.main { min-height: 100vh; margin-left: 246px; }
+.topbar { position: sticky; top: 0; z-index: 3; display: flex; height: 62px; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); background: var(--bg); padding: 0 30px; }
+.breadcrumb { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 12px; }
+.breadcrumb strong { color: var(--text); font-weight: 650; }
+.crumb-separator { color: var(--border); }
+.top-actions { display: flex; align-items: center; gap: 15px; }
+.api-status { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: 10px; }
+.api-status.online i { background: var(--green); }
+.icon-button { display: grid; width: 32px; height: 32px; place-items: center; border: 1px solid var(--border); border-radius: 8px; background: var(--panel); color: var(--text); cursor: pointer; }
+.mobile-menu { display: none; }
+.content { max-width: 1200px; min-height: calc(100vh - 106px); margin: 0 auto; padding: 34px 32px 28px; }
+.content-footer { border-top: 1px solid var(--border); padding: 14px 32px; color: var(--muted); font-size: 10px; }
+.page-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 24px; }
+.eyebrow { margin-bottom: 9px; color: var(--accent); font-size: 9px; font-weight: 750; letter-spacing: .15em; }
+h1, h2, p { margin-top: 0; }
+.page-heading h1 { margin-bottom: 7px; font-size: clamp(24px, 3vw, 32px); letter-spacing: -.04em; }
+.page-heading p { max-width: 700px; margin-bottom: 0; color: var(--muted); font-size: 13px; line-height: 1.65; }
+.badge { flex: 0 0 auto; padding: 6px 9px; border: 1px solid var(--border); border-radius: 30px; font-size: 10px; }
+.badge-planned { border-color: #665735; color: var(--yellow); }
+.panel { border: 1px solid var(--border); border-radius: 13px; background: var(--panel); }
+.placeholder-panel { display: flex; align-items: flex-start; gap: 15px; padding: 22px; }
+.placeholder-icon { display: grid; width: 36px; height: 36px; flex: 0 0 auto; place-items: center; border-radius: 10px; background: var(--panel-soft); color: var(--accent); font-size: 20px; }
+.placeholder-panel h2 { margin: 3px 0 7px; font-size: 14px; }
+.placeholder-panel p, .error-panel p { margin-bottom: 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
+.planned-list { margin: 14px 0 0; padding-left: 18px; color: var(--muted); font-size: 11px; line-height: 1.9; }
+.overview-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 18px; }
+.stat-card { padding: 17px; }
+.stat-label { color: var(--muted); font-size: 10px; }
+.stat-value { margin: 8px 0 5px; font-size: 22px; font-weight: 700; }
+.stat-note { color: var(--muted); font-size: 10px; }
+.notice { margin-bottom: 18px; padding: 14px 16px; border: 1px solid #665735; border-radius: 10px; background: color-mix(in srgb, var(--panel) 90%, #665735); color: var(--yellow); font-size: 11px; line-height: 1.6; }
+.hierarchy-box { padding: 18px; }
+.hierarchy-box h2 { margin-bottom: 13px; font-size: 13px; }
+.hierarchy-chain { color: var(--muted); font-size: 12px; line-height: 2; }
+.error-panel { padding: 22px; }
+.error-panel h1 { font-size: 18px; }
+.sidebar-backdrop { display: none; }
+@media (max-width: 760px) {
+  .sidebar { transform: translateX(-100%); transition: transform .18s ease; }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-backdrop.visible { position: fixed; inset: 0; z-index: 4; display: block; background: #0008; }
+  .main { margin-left: 0; }
+  .topbar { height: 56px; padding: 0 14px; }
+  .mobile-menu { display: grid; }
+  .breadcrumb { margin-right: auto; margin-left: 10px; }
+  .content { padding: 25px 16px; }
+  .content-footer { padding: 13px 16px; }
+  .overview-grid { grid-template-columns: 1fr; }
+}

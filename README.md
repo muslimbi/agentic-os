@@ -161,10 +161,51 @@ print(system.dashboard("child"))
 The executor is application-supplied; this prototype does not implement an
 LLM-powered executor or automatic agent self-improvement.
 
-## Development
+## GOD AI OS dashboard scaffold
+
+The expanded layout adds a local FastAPI server and a 22-page vanilla-JavaScript
+dashboard shell. The overview reads the existing in-memory orchestration
+prototype; other pages, skills, prompts, adapters, search, backup, and restore
+are explicitly marked as scaffolds and do not perform those functions.
+
+On Linux or macOS, install and start the dashboard:
 
 ```bash
+./install.sh
+./start.sh
+```
+
+Open [http://127.0.0.1:8765](http://127.0.0.1:8765). The former in-memory
+dashboard is available at `/prototype/` when served by this FastAPI app; the
+existing `agentic-os-web` command also remains available as a separate server.
+Do not run both servers on the same port. The FastAPI scaffold has no
+authentication or durable storage; keep it bound to loopback and do not expose
+it to an untrusted network. `HOST` and `PORT` can be set to change the bind
+address and port, but changing the host does not add authentication.
+
+`backup.sh` and `restore.sh` intentionally exit with an explicit
+not-implemented status; they do not read or modify data. Runtime files under
+`data/`, `audit/`, and `backups/` are ignored by Git, while
+`data/agent-routes.json` is a tracked empty scaffold.
+
+## Development
+
+Install the package and run the test suite:
+
+```bash
+python -m pip install --editable ".[test]"
 python -m unittest discover -s tests
+```
+
+GitHub Actions runs the test suite on Python 3.10, 3.12, and 3.14 for pushes
+to `main`, pull requests, and version tags (`v*`). After tests pass, it builds
+and uploads a wheel artifact. This provides a reproducible release artifact;
+publishing or deploying to a package registry or runtime is not configured.
+
+To build a wheel locally:
+
+```bash
+python -m pip wheel --no-deps --wheel-dir dist .
 ```
 
 ## License

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#11131a">
+    <title>GOD AI OS — Mission Control</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar">
+        <a class="brand" href="#dashboard" aria-label="GOD AI OS home">
+          <span class="brand-mark">G</span>
+          <span><strong>GOD AI OS</strong><small>Mission Control</small></span>
+        </a>
+        <div class="nav-label">WORKSPACE</div>
+        <nav id="navigation" aria-label="Main navigation"></nav>
+        <div class="sidebar-footer">
+          <span class="status-dot"></span>
+          <span>Local scaffold</span>
+          <span class="version">v0.1</span>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <button class="icon-button mobile-menu" id="menu-toggle" aria-label="Toggle navigation">☰</button>
+          <div class="breadcrumb"><span>Workspace</span><span class="crumb-separator">/</span><strong id="page-title">Dashboard</strong></div>
+          <div class="top-actions">
+            <span class="api-status" id="api-status"><i></i>Checking API</span>
+            <button class="icon-button" id="theme-toggle" aria-label="Toggle color theme">◐</button>
+          </div>
+        </header>
+        <section class="content" id="page-content" aria-live="polite"></section>
+        <footer class="content-footer">GOD AI OS is an early scaffold. Unavailable capabilities are marked explicitly.</footer>
+      </main>
+    </div>
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

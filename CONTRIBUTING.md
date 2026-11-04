@@ -1,29 +1,32 @@
 # Contributing to Agentic OS
 
-Thanks for your interest in contributing. Agentic OS is currently in active pre-alpha development — the core kernel, device scheduling, and sandboxing layers are still being built.
+Agentic OS is an early-stage hierarchical orchestration prototype. Contributions
+should preserve the distinction between implemented behavior and the longer-term
+GOD AI OS design.
 
-## Current Status
+## Development setup
 
-The repository will open for public contributions when the **private alpha launches in Q3 2026**. Until then, the best way to get involved is:
+Requires Python 3.10 or later.
 
-- **Star this repo** to follow progress
-- **Join the waitlist** at [agentiqueos.com](https://agentiqueos.com) to get early alpha access
-- **Open a Discussion** to share ideas, hardware suggestions, or use cases you want supported
+```bash
+python -m pip install --editable .
+python -m unittest discover -s tests -v
+```
 
-## What We'll Accept (Post-Alpha)
+Before opening a pull request:
 
-Once the alpha registry opens, we'll welcome contributions for:
+1. Keep changes focused and preserve unrelated work.
+2. Add or update tests for behavior changes.
+3. Run the test suite and ensure it passes.
+4. Update documentation when behavior or supported usage changes.
+5. Do not commit credentials, private data, or generated build artifacts.
 
-- Kernel driver patches and device scheduling matrices
-- Agent workspace templates and runtime configurations
-- Offline LLM service integrations
-- System extension scripts and sandboxing profiles
-- Documentation and CLI reference guides
+## Continuous integration and delivery
 
-## Guidelines (Coming Q3 2026)
+GitHub Actions runs the test suite on Python 3.10, 3.12, and 3.14 for pull
+requests, pushes to `main`, and version tags beginning with `v`. Once all test
+jobs pass, it builds a wheel and makes it available as a workflow artifact.
 
-Full contribution guidelines — including branch naming, PR format, testing requirements, and code style — will be published alongside the alpha release.
-
-## Questions?
-
-Open a [Discussion](../../discussions) — we read everything.
+The workflow does not publish to a package registry or deploy to a server.
+Those actions require an explicitly configured destination, credentials, and
+release policy.
